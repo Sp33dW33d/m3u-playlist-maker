@@ -2,6 +2,7 @@ import pickle
 import requests as req
 import json
 import keys
+import re
 
 # def error_catcher(base_fn):
 #     def enhanced_fn(*args, **kwargs):
@@ -12,7 +13,6 @@ import keys
 #             return f"Error:, {response.status_code}, {response.text}"
 #     return enhanced_fn
 
-# @error_catcher
 def get_token(client_id, client_secret):
     "returhs an access token"
 
@@ -30,45 +30,45 @@ def get_token(client_id, client_secret):
     response.raise_for_status()
     return response.json()["access_token"]
     
-# @error_catcher
-def get_tracklist(playlist_id, access_token, mode = 1): 
-    "returns complete list of tracks"
-
+def get_tracklist(playlist_id, access_token):
     response = req.get(url = f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks?limit=50&offset=0", headers = {"Authorization": f"Bearer {access_token}"})
+
+    tracklist = []
+    while True:
+        for item in response.json()["items"]:
+            tracklist.append(item["track"]["name"])
+        next = response.json()["next"]
+        if next == None:
+            return tracklist
+        else:
+            response = req.get(url = next, headers = {"Authorization": f"Bearer {access_token}"})
+            continue
+
+def get_playlist_name(playlist_id, access_token):
+    response = req.get(url = f"https://api.spotify.com/v1/playlists/{playlist_id}", headers = {"Authorization": f"Bearer {access_token}"})
+
+    return response.json()["name"]
+
+def generate_playlist_file(playlist_name, tracklist):
+    location = rf"Music/Playlists/{playlist_name}"    
+    playlist_file = rf"D:\Coding_Stuff\Codes\Python\playlist-maker\data\{playlist_name}.m3u"
+    # playlist_file = rf"D:\Coding_Stuff\Codes\Python\playlist-maker\data\uj_chill.m3u"
+
+    with open(playlist_file, mode = "w", encoding="utf-8") as f:
+        f.write("#EXTM3U\n")
+        for track in tracklist:
+            f.write(f"{location} - {track}.mp3\n")
     
-    response.raise_for_status()
+    return 1
 
-    if mode == 1:
-        tracks = []
-        for item in response.json()["items"]: 
-            tracks.append(item["track"]["name"])
-        return tracks
-    else:
-        return response    
-
-
+def sanitize_filename(filename: str) -> str:
+    return re.sub(r'[\\/:*?"<>|]', '_', filename)
 
 if __name__ == "__main__":
-    # ACCESS_TOKEN = get_token(keys.CLIENT_ID, keys.CLIENT_SECRET)
-    # ACCESS_HEADER = {
-    #     "Authorization": f"Bearer {ACCESS_TOKEN}"
-    # }
+    PLAYLIST_ID = "28tL7RsJGjCElo3cC8dty8"
+    ACCESS_TOKEN = get_token(keys.CLIENT_ID, keys.CLIENT_SECRET)
 
-    file = r"D:\Coding_Stuff\Codes\Python\playlist-maker\data\playlist_info.bin"
-    
-    try:
-        with open(file, mode= "rb") as f:
-            tracklist = pickle.load(f)
-    except FileNotFoundError:
-        with open(file, mode="wb") as f:
-            tracklist = get_tracklist("106NJsdPB7rXgX1i7CmpLn")
-            pickle.dump(tracklist, f)
-
-    print(tracklist)
-
-    playlist_file = r"D:\Coding_Stuff\Codes\Python\playlist-maker\data\playlist.m3u"
-    
-    with open(playlist_file, mode = "w", encoding="utf-8") as f:
-        f.write("#EXTM3U")
-        for track in tracklist:
-            f.write(f"{track}\n")
+    tracks = get_tracklist(PLAYLIST_ID, ACCESS_TOKEN)
+    playlist_name = sanitize_filename(get_playlist_name(PLAYLIST_ID, ACCESS_TOKEN))
+    if generate_playlist_file(playlist_name, tracks):
+        print("Playlist file generated successfully")
