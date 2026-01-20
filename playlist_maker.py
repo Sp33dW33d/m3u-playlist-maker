@@ -1,17 +1,9 @@
 import pickle
+from os import rename
 import requests as req
 import json
 import re
 import keys
-
-# def error_catcher(base_fn):
-#     def enhanced_fn(*args, **kwargs):
-#         response = base_fn(*args, **kwargs)
-#         if response.status_code == 200:
-#             return response
-#         else:
-#             return f"Error:, {response.status_code}, {response.text}"
-#     return enhanced_fn
 
 def get_token(client_id, client_secret) -> str:
     "returhs an access token"
@@ -80,5 +72,3 @@ if __name__ == "__main__":
     if generate_playlist_file(playlist_name, tracks):
         print("Playlist file generated successfully")
     
-    # tracks = get_tracklist(PLAYLIST_ID, ACCESS_TOKEN)
-    # print(tracks)
