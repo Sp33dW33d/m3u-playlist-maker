@@ -1,28 +1,23 @@
-import playlist_maker as pm
-import keys
-import pickle
-import requests as req
+from dotenv import load_dotenv
+import os
 
-# ----------------
+from src import api 
+from src import playlist_maker as pm
 
-# ACCESS_TOKEN = pm.get_token(keys.CLIENT_ID, keys.CLIENT_SECRET)
-# print(ACCESS_TOKEN)
+def get_api_keys():
+    global CLIENT_ID, CLIENT_SECRET
+    load_dotenv()
+    CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
+    CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET") 
 
-# file = r"D:\Coding_Stuff\Codes\Python\playlist-maker\data\playlist_json.bin"
+if __name__ == "__main__":
+    get_api_keys()
 
-# try:
-#     with open(file, mode= "rb") as f:
-#         playlist_items_json = pickle.load(f)
-# except FileNotFoundError:
-#     with open(file, mode="wb") as f: 
-#         playlist_items_json = pm.get_tracklist("28tL7RsJGjCElo3cC8dty8", ACCESS_TOKEN, mode = 2)
-#         pickle.dump(playlist_items_json, f)
+    link = "https://open.spotify.com/playlist/28tL7RsJGjCElo3cC8dty8"
+    PLAYLIST_ID = pm.get_playlistid(link)
+    ACCESS_TOKEN = pm.get_token(CLIENT_ID, CLIENT_SECRET)
 
-# print(playlist_items_json.json()["limit"])
-# print(playlist_items_json.json()["offset"])
-# print(playlist_items_json.json()["next"])
-# print(playlist_items_json.json()["total"])
-
-tracks = gget_tracklist("28tL7RsJGjCElo3cC8dty8", ACCESS_TOKEN)
-print(tracks)
-print(len(tracks))
+    tracks = pm.get_tracklist(PLAYLIST_ID, ACCESS_TOKEN)
+    playlist_name = pm.sanitize_filename(get_playlist_name(PLAYLIST_ID, ACCESS_TOKEN))
+    if generate_playlist_file(playlist_name, tracks):
+        print("Playlist file generated successfully")
