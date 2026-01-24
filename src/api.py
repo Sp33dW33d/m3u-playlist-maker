@@ -27,8 +27,8 @@ def get_tracklist(playlist_id, access_token) -> list[dict]:
     tracklist = []
     while True:
         for item in response.json()["items"]:
-            track_item = {"artist": item["track"]["artists"][0]["name"],
-                          "name": item["track"]["name"],
+            track_item = {"artist": item["track"]["artists"][0]["name"].lower(),
+                          "name": item["track"]["name"].lower(),
                           "duration": item["track"]["duration_ms"]}
             tracklist.append(track_item)
         next = response.json()["next"]
