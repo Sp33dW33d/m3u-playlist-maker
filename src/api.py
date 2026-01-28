@@ -29,8 +29,7 @@ def get_tracklist(playlist_id, access_token) -> list[Track]:
     while True:
         for item in response.json()["items"]:
             tracklist.append(
-                Track(original_name = item["track"]["name"],
-                      normalized_name = None,
+                Track(name = item["track"]["name"],
                       duration = item["track"]["duration_ms"],
                       artist = item["track"]["artists"][0]["name"])
             ) 
