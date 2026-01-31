@@ -13,4 +13,4 @@ main.py imports files.py, api.py and matching.py
 files.py - responsible for file handling like getting list of audio files, renaming files etc
 api.py - responsible for handling api calls to spotify, returning list of items from a playlist etc
 matching.py - responsible for confidence based matching between the local audio files and the songs from spotify
-
+models.py - custom Track and AudioFIle classes 

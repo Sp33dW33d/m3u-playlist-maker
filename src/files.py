@@ -2,10 +2,10 @@ import mutagen
 import re
 import pickle
 from pathlib import Path
-from src.models import AudioFile
+from src.models import AudioFile, Track
 
-# def sanitize_filename(filename: str) -> str:
-#     return re.sub(r'[\\/:*?"<>|]', '_', filename)
+def sanitize_filename(name: str) -> str:
+    return re.sub(r'[\\/:*?"<>|]', '_', name)
 
 # add filename functionality... maybe?
 def get_audio_files(data_dir: Path) -> list[AudioFile]:
@@ -29,30 +29,14 @@ def counter(start: int = 1) -> int:
         yield n
         n += 1
 
-def get_new_file_name(track: dict) -> str:
-    return f"{next(count):03d} - {track["artist"]} - {track["name"]}"
+def get_new_file_name(track: Track, count_iter: GeneratorExit) -> str:
+    return f"{next(count_iter):03d} - {track.artist} - {track.name}.mp3"
 
-def rename_file(current_name, new_name) -> None:
+def rename_file(old_audio_file: Path, new_audio_file: Path) -> None:
     try:
-        current_file = DATA_DIR / current_name
-        new_file = DATA_DIR / new_file
-        current_file.rename(new_file)
-
-        print(f"\"{current_name}\" has been renamed to \"{new_name}\"")
-    except Error as e:
+        old_audio_file.rename(new_audio_file)
+    except OSError as e:
         print(e)
 
 if __name__ == "__main__":
-    file = r"D:\Coding_Stuff\Codes\Python\playlist-maker\data\audio_files.femboy"
-    
-    with open(file, "wb") as f:
-        audio_files = get_audio_files()
-        pickle.dump(audio_files, f)
-
-    # with open(file, "rb") as f:
-    #     audio_files = pickle.load(f)
-    #     for audio_file in audio_files:
-    #         print(type(audio_file.artist))
-    #         print(type(audio_file.name))
-    #         print(type(audio_file.duration))
-    #         print("-----")
+    ...

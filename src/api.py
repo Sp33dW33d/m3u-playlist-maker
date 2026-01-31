@@ -32,7 +32,7 @@ def get_tracklist(playlist_id, access_token) -> list[Track]:
                 Track(name = item["track"]["name"],
                       duration = item["track"]["duration_ms"],
                       artist = item["track"]["artists"][0]["name"])
-            ) 
+            )
         next = response.json()["next"]
         if next != None:
             response = req.get(url = next, headers = {"Authorization": f"Bearer {access_token}"})

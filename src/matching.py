@@ -48,9 +48,6 @@ def normalize_tracks(tracks: list[Track]) -> list[Track]:
 def score_title_similarity(track_title: str, file_title: str) -> float:
     return rapidfuzz.fuzz.partial_ratio(track_title, file_title)
 
-# since im only using normalization for now, artist_similarity assumes the artist's name is also present in the file_name
-# ideal behaviour should be to default to tag based similarity calculation, but resorting to file_name based search if tag doesnt exist
-# will add tags based searching later
 def score_artist_similarity(track_artist: str, file_artist: str) -> float:
     return rapidfuzz.fuzz.partial_ratio(track_artist, file_artist)
 
@@ -73,34 +70,16 @@ def compute_match_score(track_obj: Track, file_obj: AudioFile,
 
     return final_score
 
-def find_best_match(track_obj: Track, audio_files: list[AudioFile], SCORE_CUTOFF = 0) -> tuple:
+def find_best_match(track_obj: Track, audio_files: list[AudioFile]) -> tuple:
     best_match = None
-    best_score = 0
+    best_score = -100000000
 
     for file_obj in audio_files:
         score = compute_match_score(track_obj, file_obj)
-        if score > best_score and score > SCORE_CUTOFF:
+        if score > best_score:
             best_match = file_obj
             best_score = score
-
     return (best_match, best_score)
 
-    # after i do find the best match. i need to get the original audio_file_name so i can rename it
-    # but how am i supposed to get the original audio_file_name from the normalized_file_name...?
-    # ugh i guess i need to make a Track class, and a File class
-
-
-    # what the fuck??? ternary operator AND list comprehension? 
-    # return [track if compute_match_score(track, audio_file) >= SCORE_CUTOFF][-1] if [track if compute_match_score(track, audio_file) >= SCORE_CUTOFF] else None
-
 if __name__ == "__main__":
-    file = r"D:\Coding_Stuff\Codes\Python\playlist-maker\data\audio_files.femboy"
-    
-    with open(file, "rb") as f:
-        audio_files = load(f)
-
-    normalized_audio_files = normalize_audio_files(audio_files)
-    
-    for audio_file in normalized_audio_files:
-        audio_file.pprint()
-        print("----", end="\n")
+    ...
